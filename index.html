@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>除外機能付き3人組ランダム生成ツール</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f4f4f4;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        input, button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .group {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .group h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>除外機能付き3人組ランダム生成ツール</h1>
+        <div>
+            <label for="totalPeople">総人数：</label>
+            <input type="number" id="totalPeople" placeholder="人数を入力">
+        </div>
+        <div>
+            <label for="excludeNumbers">除外する番号（カンマ区切り）：</label>
+            <input type="text" id="excludeNumbers" placeholder="例: 1, 5, 10">
+        </div>
+        <button onclick="generateGroups()">グループ生成</button>
+    </div>
+
+    <div id="groupsContainer"></div>
+
+    <script>
+        function generateGroups() {
+            const totalPeople = parseInt(document.getElementById('totalPeople').value);
+            const excludeNumbers = document.getElementById('excludeNumbers').value;
+            const excludedList = excludeNumbers.split(',').map(num => parseInt(num.trim())).filter(num => !isNaN(num));
+            const availablePeople = Array.from({ length: totalPeople }, (_, i) => i + 1).filter(num => !excludedList.includes(num));
+
+            const shuffled = availablePeople.sort(() => 0.5 - Math.random());
+            const groups = [];
+            for (let i = 0; i < shuffled.length; i += 3) {
+                groups.push(shuffled.slice(i, i + 3));
+            }
+
+            if (excludedList.length > 0) {
+                groups.push(excludedList);
+            }
+
+            displayGroups(groups);
+        }
+
+        function displayGroups(groups) {
+            const container = document.getElementById('groupsContainer');
+            container.innerHTML = '<h2>生成されたグループ</h2>';
+
+            groups.forEach((group, index) => {
+                const groupElement = document.createElement('div');
+                groupElement.className = 'group';
+                const isExcludedGroup = index === groups.length - 1 && group.length === document.getElementById('excludeNumbers').value.split(',').filter(num => num.trim() !== '').length;
+                groupElement.innerHTML = `
+                    <h3>${isExcludedGroup ? "除外メンバー" : `グループ ${index + 1}`}</h3>
+                    <p>${group.join(', ')}</p>
+                `;
+                container.appendChild(groupElement);
+            });
+        }
+    </script>
+</body>
+</html>
